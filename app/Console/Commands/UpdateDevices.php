@@ -8,41 +8,20 @@ use Illuminate\Support\Facades\Config;
 use App\Device;
 use App\DeviceType;
 
-class UpdateSilobags extends Command
+class UpdateDevices extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'update:silobags';
+    protected $signature = 'update:devices';
+    protected $description = 'Update devices';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Update silobags and their devices';
-
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
     public function handle()
     {
         $client = new Client(['headers' => Config::get('less.headers')]);
-        $response = $client->get(Config::get('less.endpoint'));
+        $response = $client->get(Config::get('less.api.devices'));
         
         if ($response->getStatusCode() == 200) {
             $silobags = json_decode($response->getBody());
