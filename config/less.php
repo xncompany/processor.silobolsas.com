@@ -2,7 +2,7 @@
 
 return [
     'headers' => 
-        ['Authorization' => 'token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MjI4NjMzMTYsImV4cCI6MTU1NDM5OTMxNiwicm9sZSI6InJlc2VsbGVyIiwidXNlcm5hbWUiOiJvaXZhbmlAeG5hcmdlbnRpbmEuY29tIn0.fYWjMO59YNcHePuRX08Jv6CJ4Zw1M2pbGHOqcEde-6E'],
+        ['Authorization' => 'token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTk1NzA2NDMsInJvbGUiOiJ1c2VyIiwiZXhwIjoxNTUxMTA2NjQzLCJ1c2VybmFtZSI6Im9mbG9yZXNAeG5jb21wYW55LmNvbSJ9.5rx3TjTFFnZ7w9ZNMHnvV_Wdc3Ed6gmqphKFjxp2b-c'],
     'api' => [
         'devices' => 'https://api.lessindustries.com/v1/device_groups/',
         'metrics' => 'https://api.lessindustries.com/v1/last_message/',
