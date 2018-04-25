@@ -38,6 +38,11 @@ class UpdateMetrics extends Command
             }
             
             $metrics = json_decode($response->getBody());
+
+            if (empty($metrics)) {
+                $this->error("DEVICE :: " . $device->description . " without metrics");
+                continue;
+            }
             
             foreach ($metrics as $metricName => $metricValue) {
              
