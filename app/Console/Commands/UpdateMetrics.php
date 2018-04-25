@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Config;
 use App\Device;
 use App\Metric;
@@ -28,9 +30,12 @@ class UpdateMetrics extends Command
         
         foreach ($devices as $device) {
             
-            $response = $client->get(
-                    Config::get('less.api.metrics') . '?less_id=' . $device->less_id
-                    );
+            try {
+                $response = $client->get(Config::get('less.api.metrics') . '?less_id=' . $device->less_id);
+            } catch(RequestException $e) {
+                $this->error("DEVICE :: " . $device->description . " not found");
+                continue;
+            }
             
             $metrics = json_decode($response->getBody());
             
