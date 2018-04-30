@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Config;
 use App\Device;
@@ -12,12 +11,22 @@ use App\Metric;
 use App\MetricType;
 use App\MetricUnit;
 use App\MetricHistory;
+use App\MetricConfiguration;
 
 class UpdateMetrics extends Command
 {
     protected $signature = 'update:metrics';
     protected $description = 'Update metrics for given devices';
 
+    public static $NORMAL = 1;
+    public static $CRITICAL = 3;
+    
+    public static $RANGE = 1;
+    public static $DELTA = 2;
+    
+    public static $NEGATIVE_VARIATION = 0;
+    public static $POSITIVE_VARIATION = 1;
+    
     public function __construct()
     {
         parent::__construct();
@@ -81,17 +90,21 @@ class UpdateMetrics extends Command
             'description' => $metricValue->unit
         ]);
 
+        $metricStatus = $this->getMetricCriticity($device->id, $metricType->id, $metricValue->derived, $metricUnit->id);
+        
         $metric = Metric::updateOrCreate([
                 'device' => $device->id, 
                 'metric_type' => $metricType->id, 
                 'metric_unit' => $metricUnit->id
             ], [
+                'metric_status' => $metricStatus,
                 'amount' => $metricValue->derived
             ]);
-
+        
         MetricHistory::create([
                 'device' => $device->id, 
                 'metric_type' => $metricType->id, 
+                'metric_status' => $metricStatus,
                 'metric_unit' => $metricUnit->id,
                 'amount' => $metricValue->derived
             ]);
@@ -99,5 +112,63 @@ class UpdateMetrics extends Command
         $this->info("METRIC :: $metricName ($metricValue->derived $metricValue->unit) updated for DEVICE $device->description");
         
         return $metric;
+    }
+    
+    private function getMetricCriticity($device, $metricType, $metricValue, $metricUnit) {
+        
+        $metricStatus = $this->getDeltaMetricCriticity($device, $metricType, $metricValue, $metricUnit);
+        
+        if ($metricStatus === static::$CRITICAL) {
+            return $metricStatus;
+        }
+        
+        return $this->getRangeMetricCriticity($metricType, $metricValue);
+    }
+    
+    private function getDeltaMetricCriticity($device, $metricType, $metricValue, $metricUnit){
+        
+        $metricStatus = static::$NORMAL;
+        
+        $previousValue = MetricHistory::select('amount')
+                ->where('device', $device)
+                ->where('metric_type', $metricType)
+                ->where('metric_unit', $metricUnit)
+                ->orderBy('created_at', 'desc')
+                ->first();
+        
+        if (isset($previousValue->amount)) {
+            
+            $deltaConfigurations = MetricConfiguration::where('id_metric_type', $metricType)
+                ->where('id_metric_configuration_type', static::$DELTA)
+                ->get();
+            
+            foreach ($deltaConfigurations as $deltaConfiguration) {
+                
+                if (($deltaConfiguration->rangeA == static::$NEGATIVE_VARIATION && 
+                        ($previousValue->amount - $metricValue) > $deltaConfiguration->rangeB) ||
+                    ($deltaConfiguration->rangeA == static::$POSITIVE_VARIATION && 
+                        ($metricValue - $previousValue->amount) > $deltaConfiguration->rangeB)) {
+                    
+                    $metricStatus = static::$CRITICAL;
+                    break;
+                }
+            }
+        }
+        
+        return $metricStatus;
+    }
+    
+    private function getRangeMetricCriticity($metricType, $metricValue){
+        
+        $metricStatus = MetricConfiguration::select('id_metric_status')
+                ->where('id_metric_type', $metricType)
+                ->where('id_metric_configuration_type', static::$RANGE)
+                ->where('rangeA', '<=', $metricValue)
+                ->where('rangeB', '>=', $metricValue)
+                ->first();
+        
+        if (isset($metricStatus->id_metric_status)) {return $metricStatus->id_metric_status;}
+        
+        return static::$NORMAL;
     }
 }

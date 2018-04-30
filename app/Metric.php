@@ -8,7 +8,7 @@ class Metric extends Model
 {
     const UPDATED_AT = null;
     
-    protected $fillable = ['device', 'metric_type', 'metric_unit', 'amount'];
+    protected $fillable = ['device', 'metric_type', 'metric_status', 'metric_unit', 'amount'];
     
     public function metric_type()
     {
