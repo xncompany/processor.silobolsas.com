@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use App\MetricHistory;
 use Mail;
 
@@ -21,24 +22,56 @@ class SendAlert extends Command
     }
 
     public function handle()
-    {
-        $metricsNotAlerted = MetricHistory::where('metric_status', static::$CRITICAL)
-                ->where('alert_sent', static::$NOTSENT)
+    {   
+        $metricsNotAlerted = DB::table('metrics_history')
+                ->where('metric_status', '=', static::$CRITICAL)
+                ->where('alert_sent', '=', static::$NOTSENT)
+                ->join('metric_types', 'metrics_history.metric_type', '=', 'metric_types.id')
+                ->join('metric_units', 'metrics_history.metric_unit', '=', 'metric_units.id')
+                ->join('metric_status', 'metrics_history.metric_status', '=', 'metric_status.id')
+                ->select('metrics_history.*', 
+                        'metric_types.description as metric_type_description',
+                        'metric_units.description as metric_unit_description',
+                        'metric_status.description as metric_status_description')
                 ->get();
         
         foreach ($metricsNotAlerted as $metricToAlert) {
             
-            //$user = Obtener la data de usuario; 
+            $user = DB::table('devices')
+                    ->where('devices.id', '=', $metricToAlert->device)
+                    ->join('silobags', 'devices.silobag', '=', 'silobags.id')
+                    ->join('lands', 'silobags.land', '=', 'lands.id')
+                    ->join('users', 'lands.user', '=', 'users.id')
+                    ->select('users.email', 
+                            'lands.description as land', 
+                            'silobags.description as silobag', 
+                            'devices.description as device')
+                    ->first();
             
             Mail::send('emails.alert', 
-                        ['metric_status' => static::$CRITICAL,],
+                        [
+                            'metric_status' => $metricToAlert->metric_status_description,
+                            'metric_type' => $metricToAlert->metric_type_description,
+                            'metric_unit' => $metricToAlert->metric_unit_description,
+                            'metric_amount' => $metricToAlert->amount,
+                            'device' => $user->device,
+                            'silobag' => $user->silobag,
+                            'land' => $user->land,
+                        ],
                         function ($m) use ($user) {
 
-                $m->from('noreply@smartiumtech.com', 'Smartium');
-                $m->to($user->email, $user->name)->subject('[Smartium] Alerta detectada en una de sus lanzas');
+                //$m->from('noreply@smartiumtech.com', 'Smartium');
+                //$m->to($user->email, $user->name);
+                //$m->subject('[Smartium] Alerta detectada en una de sus lanzas');
+                
+                $m->from('german.scoglio@gmail.com', 'Smartium');
+                $m->to('german.scoglio@gmail.com');
+                $m->subject('[Smartium] Alerta detectada en una de sus lanzas');
             });
-             
-            MetricHistory::update(['id' => $metricToAlert->id], ['alert_sent' => static::$SENT]);
+            
+            $this->info("MAIL SENT :: to $user->email for metric $metricToAlert->id");
+            
+            MetricHistory::where('id', $metricToAlert->id)->update(['alert_sent' => static::$SENT]);
         }        
     }
 }

@@ -56,7 +56,8 @@ return [
     */
 
     'from' => [
-        'address' => 'noreply@smartiumtech.com',
+        //'address' => 'noreply@smartiumtech.com',
+        'address' => 'german.scoglio@gmail.com',
         'name' => 'Smartium',
     ],
 
