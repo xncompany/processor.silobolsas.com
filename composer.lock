@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.55.4",
+            "version": "3.55.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "8c3093d7cbd30a94ab781777bd1f67c29b2bf7fc"
+                "reference": "12152498f9c6f5595ebdeb4ec3d8b45379843bf4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/8c3093d7cbd30a94ab781777bd1f67c29b2bf7fc",
-                "reference": "8c3093d7cbd30a94ab781777bd1f67c29b2bf7fc",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/12152498f9c6f5595ebdeb4ec3d8b45379843bf4",
+                "reference": "12152498f9c6f5595ebdeb4ec3d8b45379843bf4",
                 "shasum": ""
             },
             "require": {
@@ -84,7 +84,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2018-04-30T23:04:55+00:00"
+            "time": "2018-05-02T19:55:35+00:00"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -716,16 +716,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v5.6.19",
+            "version": "v5.6.20",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "4e480de7fe51c52573a95b25ebf85f5c7f5d2087"
+                "reference": "3c11e7acc6ad14dd86e2f9e4bf3230010c3e611c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/4e480de7fe51c52573a95b25ebf85f5c7f5d2087",
-                "reference": "4e480de7fe51c52573a95b25ebf85f5c7f5d2087",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/3c11e7acc6ad14dd86e2f9e4bf3230010c3e611c",
+                "reference": "3c11e7acc6ad14dd86e2f9e4bf3230010c3e611c",
                 "shasum": ""
             },
             "require": {
@@ -851,7 +851,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2018-04-30T17:43:38+00:00"
+            "time": "2018-05-02T15:22:18+00:00"
         },
         {
             "name": "laravel/tinker",
